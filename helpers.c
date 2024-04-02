@@ -58,7 +58,7 @@ void blur(int height, int width, RGBTRIPLE image[height][width])
 {
 
     int blur_box[9] = {1,1,1,1,1,1,1,1,1};
-    RGBTRIPLE pixel ;
+    INTRGB pixel ;
      RGBTRIPLE originImage[height][width] ;
       for (int i = 0; i < height; i++)
     {
@@ -82,9 +82,9 @@ void blur(int height, int width, RGBTRIPLE image[height][width])
          {
 
             getKernalProduct(i,j,height,width,originImage,&pixel,blur_box);
-            image[i][j].rgbtBlue = (pixel.rgbtBlue);
-            image[i][j].rgbtGreen = (pixel.rgbtGreen);
-            image[i][j].rgbtRed = (pixel.rgbtRed);
+            image[i][j].rgbtBlue = (pixel.rgbtBlue)/9;
+            image[i][j].rgbtGreen = (pixel.rgbtGreen)/9;
+            image[i][j].rgbtRed = (pixel.rgbtRed)/9;
 
          }else
          {
@@ -104,11 +104,15 @@ void blur(int height, int width, RGBTRIPLE image[height][width])
 // Detect edges
 void edges(int height, int width, RGBTRIPLE image[height][width])
 {
-       grayscale(height,width,image);
+    
     int rx,bx,gx,ry,by,gy = 0;
-    int x_gradient[9] = {1,0,1,-2,0,2,-1,0,1};
-    int y_gradient[9] = {-1,2,-1,0,0,0,1,2,1};
-     RGBTRIPLE originImage[height][width] ;
+    int x_gradient[9] = {-1,0,1,-2,0,2,-1,0,1};
+    int y_gradient[9] = {-1,-2,-1,0,0,0,1,2,1};
+    INTRGB x_gradient_pixel;
+    INTRGB y_gradient_pixel;
+    RGBTRIPLE originImage[height][width] ;
+ grayscale(height,width,image);
+   
       for (int i = 0; i < height; i++)
     {
        
@@ -128,27 +132,17 @@ void edges(int height, int width, RGBTRIPLE image[height][width])
         {
            if (i!=0 &&j!=0 &&i!=height-1 &&j!=width-1  )
          {
-            int b_box[9] = {originImage[i-1][j-1].rgbtBlue,originImage[i-1][j].rgbtBlue,originImage[i-1][j+1].rgbtBlue,
-                        originImage[i][j-1].rgbtBlue,originImage[i][j].rgbtBlue,originImage[i][j+1].rgbtBlue,
-                        originImage[i+1][j-1].rgbtBlue,originImage[i+1][j].rgbtBlue,originImage[i+1][j+1].rgbtBlue
-                        };
-            int g_box[9] = {originImage[i-1][j-1].rgbtGreen,originImage[i-1][j].rgbtGreen,originImage[i-1][j+1].rgbtGreen,
-                        originImage[i][j-1].rgbtGreen,originImage[i][j].rgbtGreen,originImage[i][j+1].rgbtGreen,
-                        originImage[i+1][j-1].rgbtGreen,originImage[i+1][j].rgbtGreen,originImage[i+1][j+1].rgbtGreen
-                        };
-            int r_box[9] = {originImage[i-1][j-1].rgbtRed,originImage[i-1][j].rgbtRed,originImage[i-1][j+1].rgbtRed,
-                        originImage[i][j-1].rgbtRed,originImage[i][j].rgbtRed,originImage[i][j+1].rgbtRed,
-                        originImage[i+1][j-1].rgbtRed,originImage[i+1][j].rgbtRed,originImage[i+1][j+1].rgbtRed
-                        };
 
+            getKernalProduct(i,j,height,width,originImage,&x_gradient_pixel,x_gradient);
+            bx = x_gradient_pixel.rgbtBlue;
+            gx =x_gradient_pixel.rgbtGreen;
+            rx = x_gradient_pixel.rgbtRed;
 
-            bx = ((x_gradient[0]*b_box[0])+(x_gradient[1]*b_box[1])+(x_gradient[2]*b_box[2])+(x_gradient[3]*b_box[3])+(x_gradient[4]*b_box[4])+(x_gradient[5]*b_box[5])+(x_gradient[6]*b_box[6])+(x_gradient[7]*b_box[7])+(x_gradient[8]*b_box[8]));
-            gx = ((x_gradient[0]*g_box[0])+(x_gradient[1]*g_box[1])+(x_gradient[2]*g_box[2])+(x_gradient[3]*g_box[3])+(x_gradient[4]*g_box[4])+(x_gradient[5]*g_box[5])+(x_gradient[6]*g_box[6])+(x_gradient[7]*g_box[7])+(x_gradient[8]*g_box[8]));
-            rx = ((x_gradient[0]*r_box[0])+(x_gradient[1]*r_box[1])+(x_gradient[2]*r_box[2])+(x_gradient[3]*r_box[3])+(x_gradient[4]*r_box[4])+(x_gradient[5]*r_box[5])+(x_gradient[6]*r_box[6])+(x_gradient[7]*r_box[7])+(x_gradient[8]*r_box[8]));
-            by = ((y_gradient[0]*b_box[0])+(y_gradient[1]*b_box[1])+(y_gradient[2]*b_box[2])+(y_gradient[3]*b_box[3])+(y_gradient[4]*b_box[4])+(y_gradient[5]*b_box[5])+(y_gradient[6]*b_box[6])+(y_gradient[7]*b_box[7])+(y_gradient[8]*b_box[8]));
-            gy = ((y_gradient[0]*g_box[0])+(y_gradient[1]*g_box[1])+(y_gradient[2]*g_box[2])+(y_gradient[3]*g_box[3])+(y_gradient[4]*g_box[4])+(y_gradient[5]*g_box[5])+(y_gradient[6]*g_box[6])+(y_gradient[7]*g_box[7])+(y_gradient[8]*g_box[8]));
-            ry = ((y_gradient[0]*r_box[0])+(y_gradient[1]*r_box[1])+(y_gradient[2]*r_box[2])+(y_gradient[3]*r_box[3])+(y_gradient[4]*r_box[4])+(y_gradient[5]*r_box[5])+(y_gradient[6]*r_box[6])+(y_gradient[7]*r_box[7])+(y_gradient[8]*r_box[8]));
-                     
+            getKernalProduct(i,j,height,width,originImage,&y_gradient_pixel,y_gradient);
+            by = y_gradient_pixel.rgbtBlue;
+            gy = y_gradient_pixel.rgbtGreen;
+            ry =y_gradient_pixel.rgbtRed;
+
                     if (sqrt( (bx*bx)+(by*by))>=255)
                     {
                         image[i][j].rgbtBlue = 255;
@@ -181,9 +175,8 @@ void edges(int height, int width, RGBTRIPLE image[height][width])
                          image[i][j].rgbtRed =(int) sqrt((rx*rx)+(ry*ry));
                     }
 
-
+ 
            
-            
            
          }else
          {
@@ -196,15 +189,15 @@ void edges(int height, int width, RGBTRIPLE image[height][width])
            
         }
     }
-   
+  
     return;
 }
 
 
 // makes calculations on the pixel based on the chosen kernal
-void getKernalProduct(int i, int j,int height, int width, RGBTRIPLE originImage[height][width],RGBTRIPLE *pixel , int kernal[9]){
-//  9 by 9 kernal for every color
+void getKernalProduct(int i, int j,int height, int width, RGBTRIPLE originImage[height][width],INTRGB *pixel , int kernal[9]){
 
+//  9 by 9 kernal for every color
     int b_box[9] = {originImage[i-1][j-1].rgbtBlue,originImage[i-1][j].rgbtBlue,originImage[i-1][j+1].rgbtBlue,
                         originImage[i][j-1].rgbtBlue,originImage[i][j].rgbtBlue,originImage[i][j+1].rgbtBlue,
                         originImage[i+1][j-1].rgbtBlue,originImage[i+1][j].rgbtBlue,originImage[i+1][j+1].rgbtBlue
@@ -217,10 +210,9 @@ void getKernalProduct(int i, int j,int height, int width, RGBTRIPLE originImage[
                         originImage[i][j-1].rgbtRed,originImage[i][j].rgbtRed,originImage[i][j+1].rgbtRed,
                         originImage[i+1][j-1].rgbtRed,originImage[i+1][j].rgbtRed,originImage[i+1][j+1].rgbtRed
                         };
-    (*pixel).rgbtBlue = ((kernal[0]*b_box[0])+(kernal[1]*b_box[1])+(kernal[2]*b_box[2])+(kernal[3]*b_box[3])+(kernal[4]*b_box[4])+(kernal[5]*b_box[5])+(kernal[6]*b_box[6])+(kernal[7]*b_box[7])+(kernal[8]*b_box[8]))/9;
-    (*pixel).rgbtGreen = ((kernal[0]*g_box[0])+(kernal[1]*g_box[1])+(kernal[2]*g_box[2])+(kernal[3]*g_box[3])+(kernal[4]*g_box[4])+(kernal[5]*g_box[5])+(kernal[6]*g_box[6])+(kernal[7]*g_box[7])+(kernal[8]*g_box[8]))/9;
-    (*pixel).rgbtRed = ((kernal[0]*r_box[0])+(kernal[1]*r_box[1])+(kernal[2]*r_box[2])+(kernal[3]*r_box[3])+(kernal[4]*r_box[4])+(kernal[5]*r_box[5])+(kernal[6]*r_box[6])+(kernal[7]*r_box[7])+(kernal[8]*r_box[8]))/9;
-
+    (*pixel).rgbtBlue = ((kernal[0]*b_box[0])+(kernal[1]*b_box[1])+(kernal[2]*b_box[2])+(kernal[3]*b_box[3])+(kernal[4]*b_box[4])+(kernal[5]*b_box[5])+(kernal[6]*b_box[6])+(kernal[7]*b_box[7])+(kernal[8]*b_box[8]));
+    (*pixel).rgbtGreen = ((kernal[0]*g_box[0])+(kernal[1]*g_box[1])+(kernal[2]*g_box[2])+(kernal[3]*g_box[3])+(kernal[4]*g_box[4])+(kernal[5]*g_box[5])+(kernal[6]*g_box[6])+(kernal[7]*g_box[7])+(kernal[8]*g_box[8]));
+    (*pixel).rgbtRed = ((kernal[0]*r_box[0])+(kernal[1]*r_box[1])+(kernal[2]*r_box[2])+(kernal[3]*r_box[3])+(kernal[4]*r_box[4])+(kernal[5]*r_box[5])+(kernal[6]*r_box[6])+(kernal[7]*r_box[7])+(kernal[8]*r_box[8]));
             
 return ;
 }

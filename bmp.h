@@ -73,3 +73,10 @@ typedef struct
     BYTE  rgbtRed;
 } __attribute__((__packed__))
 RGBTRIPLE;
+
+typedef struct
+{
+    int  rgbtBlue;
+    int  rgbtGreen;
+    int  rgbtRed;
+} INTRGB;
