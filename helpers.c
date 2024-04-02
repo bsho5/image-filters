@@ -24,16 +24,16 @@ void grayscale(int height, int width, RGBTRIPLE image[height][width])
 // Reflect image horizontally
 void reflect(int height, int width, RGBTRIPLE image[height][width])
 {
-    RGBTRIPLE tempImage[height][width] ;
+    RGBTRIPLE originImage[height][width] ;
      for (int i = 0; i < height; i++)
     {
        
         for (int j = 0; j < width; j++)
         {
            
-           tempImage[i][j].rgbtBlue = image[i][width-j].rgbtBlue;
-           tempImage[i][j].rgbtGreen =  image[i][width-j].rgbtGreen;
-           tempImage[i][j].rgbtRed =  image[i][width-j].rgbtRed;
+           originImage[i][j].rgbtBlue = image[i][width-j].rgbtBlue;
+           originImage[i][j].rgbtGreen =  image[i][width-j].rgbtGreen;
+           originImage[i][j].rgbtRed =  image[i][width-j].rgbtRed;
             // Update pixel values
         }
     }
@@ -43,13 +43,13 @@ void reflect(int height, int width, RGBTRIPLE image[height][width])
         for (int j = 0; j < width; j++)
         {
            
-           image[i][j].rgbtBlue = tempImage[i][j].rgbtBlue;
-           image[i][j].rgbtGreen =  tempImage[i][j].rgbtGreen;
-           image[i][j].rgbtRed =  tempImage[i][j].rgbtRed;
+           image[i][j].rgbtBlue = originImage[i][j].rgbtBlue;
+           image[i][j].rgbtGreen =  originImage[i][j].rgbtGreen;
+           image[i][j].rgbtRed =  originImage[i][j].rgbtRed;
             // Update pixel values
         }
     }
-    // image = tempImage;
+    // image = originImage;
     return;
 }
 
@@ -58,20 +58,21 @@ void blur(int height, int width, RGBTRIPLE image[height][width])
 {
 
     int blur_box[9] = {1,1,1,1,1,1,1,1,1};
-    
-     RGBTRIPLE tempImage[height][width] ;
+    RGBTRIPLE pixel ;
+     RGBTRIPLE originImage[height][width] ;
       for (int i = 0; i < height; i++)
     {
        
         for (int j = 0; j < width; j++)
         {
            
-           tempImage[i][j].rgbtBlue = image[i][j].rgbtBlue;
-           tempImage[i][j].rgbtGreen =  image[i][j].rgbtGreen;
-           tempImage[i][j].rgbtRed =  image[i][j].rgbtRed;
+           originImage[i][j].rgbtBlue = image[i][j].rgbtBlue;
+           originImage[i][j].rgbtGreen =  image[i][j].rgbtGreen;
+           originImage[i][j].rgbtRed =  image[i][j].rgbtRed;
             // Update pixel values
         }
     }
+    
      for (int i = 0; i < height; i++)
     {
        
@@ -79,24 +80,12 @@ void blur(int height, int width, RGBTRIPLE image[height][width])
         {
            if (i!=0 &&j!=0 &&i!=height-1 &&j!=width-1  )
          {
-            int b_box[9] = {tempImage[i-1][j-1].rgbtBlue,tempImage[i-1][j].rgbtBlue,tempImage[i-1][j+1].rgbtBlue,
-                        tempImage[i][j-1].rgbtBlue,tempImage[i][j].rgbtBlue,tempImage[i][j+1].rgbtBlue,
-                        tempImage[i+1][j-1].rgbtBlue,tempImage[i+1][j].rgbtBlue,tempImage[i+1][j+1].rgbtBlue
-                        };
-            int g_box[9] = {tempImage[i-1][j-1].rgbtGreen,tempImage[i-1][j].rgbtGreen,tempImage[i-1][j+1].rgbtGreen,
-                        tempImage[i][j-1].rgbtGreen,tempImage[i][j].rgbtGreen,tempImage[i][j+1].rgbtGreen,
-                        tempImage[i+1][j-1].rgbtGreen,tempImage[i+1][j].rgbtGreen,tempImage[i+1][j+1].rgbtGreen
-                        };
-            int r_box[9] = {tempImage[i-1][j-1].rgbtRed,tempImage[i-1][j].rgbtRed,tempImage[i-1][j+1].rgbtRed,
-                        tempImage[i][j-1].rgbtRed,tempImage[i][j].rgbtRed,tempImage[i][j+1].rgbtRed,
-                        tempImage[i+1][j-1].rgbtRed,tempImage[i+1][j].rgbtRed,tempImage[i+1][j+1].rgbtRed
-                        };
 
+            getKernalProduct(i,j,height,width,originImage,&pixel,blur_box);
+            image[i][j].rgbtBlue = (pixel.rgbtBlue);
+            image[i][j].rgbtGreen = (pixel.rgbtGreen);
+            image[i][j].rgbtRed = (pixel.rgbtRed);
 
-            image[i][j].rgbtBlue = ((blur_box[0]*b_box[0])+(blur_box[1]*b_box[1])+(blur_box[2]*b_box[2])+(blur_box[3]*b_box[3])+(blur_box[4]*b_box[4])+(blur_box[5]*b_box[5])+(blur_box[6]*b_box[6])+(blur_box[7]*b_box[7])+(blur_box[8]*b_box[8]))/9;
-            image[i][j].rgbtGreen = ((blur_box[0]*g_box[0])+(blur_box[1]*g_box[1])+(blur_box[2]*g_box[2])+(blur_box[3]*g_box[3])+(blur_box[4]*g_box[4])+(blur_box[5]*g_box[5])+(blur_box[6]*g_box[6])+(blur_box[7]*g_box[7])+(blur_box[8]*g_box[8]))/9;
-            image[i][j].rgbtRed = ((blur_box[0]*r_box[0])+(blur_box[1]*r_box[1])+(blur_box[2]*r_box[2])+(blur_box[3]*r_box[3])+(blur_box[4]*r_box[4])+(blur_box[5]*r_box[5])+(blur_box[6]*r_box[6])+(blur_box[7]*r_box[7])+(blur_box[8]*r_box[8]))/9;
-            
          }else
          {
              image[i][j].rgbtBlue = 0;
@@ -119,16 +108,16 @@ void edges(int height, int width, RGBTRIPLE image[height][width])
     int rx,bx,gx,ry,by,gy = 0;
     int x_gradient[9] = {1,0,1,-2,0,2,-1,0,1};
     int y_gradient[9] = {-1,2,-1,0,0,0,1,2,1};
-     RGBTRIPLE tempImage[height][width] ;
+     RGBTRIPLE originImage[height][width] ;
       for (int i = 0; i < height; i++)
     {
        
         for (int j = 0; j < width; j++)
         {
            
-           tempImage[i][j].rgbtBlue = image[i][j].rgbtBlue;
-           tempImage[i][j].rgbtGreen =  image[i][j].rgbtGreen;
-           tempImage[i][j].rgbtRed =  image[i][j].rgbtRed;
+           originImage[i][j].rgbtBlue = image[i][j].rgbtBlue;
+           originImage[i][j].rgbtGreen =  image[i][j].rgbtGreen;
+           originImage[i][j].rgbtRed =  image[i][j].rgbtRed;
             // Update pixel values
         }
     }
@@ -139,17 +128,17 @@ void edges(int height, int width, RGBTRIPLE image[height][width])
         {
            if (i!=0 &&j!=0 &&i!=height-1 &&j!=width-1  )
          {
-            int b_box[9] = {tempImage[i-1][j-1].rgbtBlue,tempImage[i-1][j].rgbtBlue,tempImage[i-1][j+1].rgbtBlue,
-                        tempImage[i][j-1].rgbtBlue,tempImage[i][j].rgbtBlue,tempImage[i][j+1].rgbtBlue,
-                        tempImage[i+1][j-1].rgbtBlue,tempImage[i+1][j].rgbtBlue,tempImage[i+1][j+1].rgbtBlue
+            int b_box[9] = {originImage[i-1][j-1].rgbtBlue,originImage[i-1][j].rgbtBlue,originImage[i-1][j+1].rgbtBlue,
+                        originImage[i][j-1].rgbtBlue,originImage[i][j].rgbtBlue,originImage[i][j+1].rgbtBlue,
+                        originImage[i+1][j-1].rgbtBlue,originImage[i+1][j].rgbtBlue,originImage[i+1][j+1].rgbtBlue
                         };
-            int g_box[9] = {tempImage[i-1][j-1].rgbtGreen,tempImage[i-1][j].rgbtGreen,tempImage[i-1][j+1].rgbtGreen,
-                        tempImage[i][j-1].rgbtGreen,tempImage[i][j].rgbtGreen,tempImage[i][j+1].rgbtGreen,
-                        tempImage[i+1][j-1].rgbtGreen,tempImage[i+1][j].rgbtGreen,tempImage[i+1][j+1].rgbtGreen
+            int g_box[9] = {originImage[i-1][j-1].rgbtGreen,originImage[i-1][j].rgbtGreen,originImage[i-1][j+1].rgbtGreen,
+                        originImage[i][j-1].rgbtGreen,originImage[i][j].rgbtGreen,originImage[i][j+1].rgbtGreen,
+                        originImage[i+1][j-1].rgbtGreen,originImage[i+1][j].rgbtGreen,originImage[i+1][j+1].rgbtGreen
                         };
-            int r_box[9] = {tempImage[i-1][j-1].rgbtRed,tempImage[i-1][j].rgbtRed,tempImage[i-1][j+1].rgbtRed,
-                        tempImage[i][j-1].rgbtRed,tempImage[i][j].rgbtRed,tempImage[i][j+1].rgbtRed,
-                        tempImage[i+1][j-1].rgbtRed,tempImage[i+1][j].rgbtRed,tempImage[i+1][j+1].rgbtRed
+            int r_box[9] = {originImage[i-1][j-1].rgbtRed,originImage[i-1][j].rgbtRed,originImage[i-1][j+1].rgbtRed,
+                        originImage[i][j-1].rgbtRed,originImage[i][j].rgbtRed,originImage[i][j+1].rgbtRed,
+                        originImage[i+1][j-1].rgbtRed,originImage[i+1][j].rgbtRed,originImage[i+1][j+1].rgbtRed
                         };
 
 
@@ -209,4 +198,29 @@ void edges(int height, int width, RGBTRIPLE image[height][width])
     }
    
     return;
+}
+
+
+// makes calculations on the pixel based on the chosen kernal
+void getKernalProduct(int i, int j,int height, int width, RGBTRIPLE originImage[height][width],RGBTRIPLE *pixel , int kernal[9]){
+//  9 by 9 kernal for every color
+
+    int b_box[9] = {originImage[i-1][j-1].rgbtBlue,originImage[i-1][j].rgbtBlue,originImage[i-1][j+1].rgbtBlue,
+                        originImage[i][j-1].rgbtBlue,originImage[i][j].rgbtBlue,originImage[i][j+1].rgbtBlue,
+                        originImage[i+1][j-1].rgbtBlue,originImage[i+1][j].rgbtBlue,originImage[i+1][j+1].rgbtBlue
+                        };
+    int g_box[9] = {originImage[i-1][j-1].rgbtGreen,originImage[i-1][j].rgbtGreen,originImage[i-1][j+1].rgbtGreen,
+                        originImage[i][j-1].rgbtGreen,originImage[i][j].rgbtGreen,originImage[i][j+1].rgbtGreen,
+                        originImage[i+1][j-1].rgbtGreen,originImage[i+1][j].rgbtGreen,originImage[i+1][j+1].rgbtGreen
+                        };
+    int r_box[9] = {originImage[i-1][j-1].rgbtRed,originImage[i-1][j].rgbtRed,originImage[i-1][j+1].rgbtRed,
+                        originImage[i][j-1].rgbtRed,originImage[i][j].rgbtRed,originImage[i][j+1].rgbtRed,
+                        originImage[i+1][j-1].rgbtRed,originImage[i+1][j].rgbtRed,originImage[i+1][j+1].rgbtRed
+                        };
+    (*pixel).rgbtBlue = ((kernal[0]*b_box[0])+(kernal[1]*b_box[1])+(kernal[2]*b_box[2])+(kernal[3]*b_box[3])+(kernal[4]*b_box[4])+(kernal[5]*b_box[5])+(kernal[6]*b_box[6])+(kernal[7]*b_box[7])+(kernal[8]*b_box[8]))/9;
+    (*pixel).rgbtGreen = ((kernal[0]*g_box[0])+(kernal[1]*g_box[1])+(kernal[2]*g_box[2])+(kernal[3]*g_box[3])+(kernal[4]*g_box[4])+(kernal[5]*g_box[5])+(kernal[6]*g_box[6])+(kernal[7]*g_box[7])+(kernal[8]*g_box[8]))/9;
+    (*pixel).rgbtRed = ((kernal[0]*r_box[0])+(kernal[1]*r_box[1])+(kernal[2]*r_box[2])+(kernal[3]*r_box[3])+(kernal[4]*r_box[4])+(kernal[5]*r_box[5])+(kernal[6]*r_box[6])+(kernal[7]*r_box[7])+(kernal[8]*r_box[8]))/9;
+
+            
+return ;
 }
